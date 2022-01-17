@@ -1,3 +1,4 @@
+import uuid
 import requests
 from selenium import webdriver
 import time
@@ -36,7 +37,7 @@ def collect_post_urls(x):
         print(f'{item_text}:{item_url}')
     print(posts_urls)
     return posts_urls
-collect_post_urls(get_main_page())
+#collect_post_urls(get_main_page())
 
 
 def record_post_pages():
@@ -162,9 +163,9 @@ def get_num_votes(x):
 
         except:
             continue
-get_num_votes(len(posts_urls))
+#get_num_votes(len(posts_urls))
 #print(list_num_of_comm)
-#<span class="FHCV02u6Cp2zYL0fhQPsO">863 comments</span>
+
 list_num_of_comments = []
 def get_num_comments(x):
     for count in range(x):
@@ -178,7 +179,69 @@ def get_num_comments(x):
 
         except:
             continue
-get_num_votes(len(posts_urls))
+#get_num_votes(len(posts_urls))
+
+list_category = []
+def get_category(x):
+    for count in range(x):
+        try:
+            with open(f'data/{count}.html', encoding='utf-8') as file:
+                src = file.read()
+            soup = BeautifulSoup(src, 'lxml')
+            category = soup.find('div', class_="_3CUdiRoAXQxoYJ-UeFCjPS _2SVIoeexI3lRGCH0NAYAMx")
+            print(category.text)
+            list_category.append(category.text)
+        except:
+            continue
+#get_category(len(posts_urls))
 
 
+list_post_date = []
+def get_post_date(x):
+    for count in range(x):
+        try:
+            with open(f'data/{count}.html', encoding='utf-8') as file:
+                src = file.read()
+            soup = BeautifulSoup(src, 'lxml')
+            post_date = soup.find('a', class_='_3jOxDPIQ0KaOWpzvSQo-1s')
+            print(post_date.text)
+            list_post_date.append(post_date.text)
+        except:
+            continue
+#get_post_date(len(posts_urls))
+
+list_id = []
+# def get_Unique_id(x):
+#     count = 0
+#     for count in range(x):
+#         ui = uuid.uuid1().hex
+#         print(ui)
+#         list_id.append(ui)
+#         count +=1
+# get_Unique_id(len(posts_urls))
+def add_ud(x):
+    for i in range(x):
+        tu = [i]
+        tu.append(uuid.uuid1().hex)
+        print(tu)
+add_ud(5)
+
+def get_big_main_page():
+    driver = webdriver.Chrome(
+        executable_path=r'D:\Vlad\Python Projects\reddit_scraping\chrome_driver\chromedriver.exe')
+    try:
+        driver.get('https://www.reddit.com/top/?t=month')
+        for i in range(30):
+            driver.execute_script("window.scrollTo(0,document.body.scrollHeight);")
+            time.sleep(1)
+            i+=1
+        with open('top_month_big.html', 'w', encoding='utf-8') as file:
+            file.write(driver.page_source)
+    except Exception as ex:
+        print(ex)
+    finally:
+        driver.close()
+        driver.quit()
+    return 'top_month_big.html'
+#get_big_main_page()
 
