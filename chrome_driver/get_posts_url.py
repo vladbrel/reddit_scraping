@@ -9,7 +9,7 @@ def get_main_page():
     driver = webdriver.Chrome( executable_path=r'D:\Vlad\Python Projects\reddit_scraping\chrome_driver\chromedriver.exe')
     try:
         driver.get('https://www.reddit.com/top/?t=month')
-        time.sleep(2)
+        time.sleep(0.1)
         with open('top_month.html', 'w', encoding='utf-8') as file:
             file.write(driver.page_source)
     except Exception as ex:
@@ -47,7 +47,7 @@ def record_post_pages():
        for url in posts_urls:
            try:
                driver.get(url)
-               time.sleep(2)
+               time.sleep(0.5)
                with open(f'data/{count}.html', 'w',encoding='utf-8') as file:
                    file.write(driver.page_source)
                count=count+1
@@ -72,6 +72,8 @@ def collect_user_urls():
         user_list_for_comm_and_post_karma.append('https://www.reddit.com/'+user_url)
         user_list_for_cake_day.append('https://www.reddit.com'+user_url)
         print(user_url)
+        username = user_url[6:-1]
+        print(username)
     print(user_list_for_comm_and_post_karma)
     print(user_list_for_cake_day)
 #collect_user_urls()
@@ -83,7 +85,7 @@ def record_user_pages_comm_post_karma():
         for user in user_list_for_comm_and_post_karma:
             try:
                 driver.get(user)
-                time.sleep(1)
+                time.sleep(0.5)
                 with open(f'data/users_post_comment_karma/{count}.html', 'w', encoding='utf-8') as file:
                     file.write(driver.page_source)
                 count+=1
@@ -103,7 +105,7 @@ def record_user_pages_cake_day():
         for user in user_list_for_cake_day:
             try:
                 driver.get(user)
-                time.sleep(1)
+                time.sleep(0.5)
                 with open(f'data/users_cake_day/{count}.html', 'w', encoding='utf-8') as file:
                     file.write(driver.page_source)
                 count +=1
@@ -146,7 +148,7 @@ def get_user_for_comment_post_karma(x):
         except:
             continue
         count +=1
-#get_user_for_comment_post_karma(len(user_list_for_comm_and_post_karma)
+#get_user_for_comment_post_karma(len(user_list_for_comm_and_post_karma))
 #<div class="_1E9mcoVn4MYnuBQSVDt1gC" id="vote-arrows-t3_r8s8py"><button aria-label="upvote" aria-pressed="false" class="voteButton " data-click-id="upvote" id="upvote-button-t3_r8s8py"><span class="_2q7IQ0BUOWeEZoeAxN555e _3SUsITjKNQ7Tp0Wi2jGxIM qW0l8Af61EP35WIG6vnGk _3edNsMs0PNfyQYofMNVhsG"><i class="icon icon-upvote _2Jxk822qXs4DaXwsN7yyHA"></i></span></button><div class="_1rZYMD_4xY3gRcSS3p8ODO _3a2ZHWaih05DgAOtvu6cIo " style="color:#1A1A1B">126k</div><button aria-label="downvote" aria-pressed="false" class="voteButton" data-click-id="downvote"><span class="_1iKd82bq_nqObFvSH1iC_Q Q0BxYHtCOJ_rNSPJMU2Y7 _2fe-KdD2OM0ciaiux-G1EL _3yQIOwaIuF6gn8db96Gu7y"><i class="icon icon-downvote ZyxIIl4FP5gHGrJDzNpUC"></i></span></button></div>
 #<div class="_1E9mcoVn4MYnuBQSVDt1gC" id="vote-arrows-t3_rzv4hw"><button aria-label="upvote" aria-pressed="false" class="voteButton " data-click-id="upvote" id="upvote-button-t3_rzv4hw"><span class="_2q7IQ0BUOWeEZoeAxN555e _3SUsITjKNQ7Tp0Wi2jGxIM qW0l8Af61EP35WIG6vnGk _3edNsMs0PNfyQYofMNVhsG"><i class="icon icon-upvote _2Jxk822qXs4DaXwsN7yyHA"></i></span></button><div class="_1rZYMD_4xY3gRcSS3p8ODO _3a2ZHWaih05DgAOtvu6cIo " style="color:#1A1A1B">180k</div><button aria-label="downvote" aria-pressed="false" class="voteButton" data-click-id="downvote"><span class="_1iKd82bq_nqObFvSH1iC_Q Q0BxYHtCOJ_rNSPJMU2Y7 _2fe-KdD2OM0ciaiux-G1EL _3yQIOwaIuF6gn8db96Gu7y"><i class="icon icon-downvote ZyxIIl4FP5gHGrJDzNpUC"></i></span></button></div>
 list_num_of_votes = []
@@ -173,13 +175,12 @@ def get_num_comments(x):
             with open(f'data/{count}.html', encoding='utf-8') as file:
                 src = file.read()
             soup = BeautifulSoup(src, 'lxml')
-            num_votes = soup.find('span', class_="FHCV02u6Cp2zYL0fhQPsO")
-            print(num_votes.text)
-            list_num_of_votes.append(num_votes.text)
-
+            num_comments = soup.find('span', class_="FHCV02u6Cp2zYL0fhQPsO")
+            print(num_comments.text)
+            list_num_of_comments.append(num_comments.text)
         except:
             continue
-#get_num_votes(len(posts_urls))
+#get_num_comments(len(posts_urls))
 
 list_category = []
 def get_category(x):
@@ -224,16 +225,16 @@ def add_ud(x):
         tu = [i]
         tu.append(uuid.uuid1().hex)
         print(tu)
-add_ud(5)
+#add_ud(5)
 
 def get_big_main_page():
     driver = webdriver.Chrome(
         executable_path=r'D:\Vlad\Python Projects\reddit_scraping\chrome_driver\chromedriver.exe')
     try:
         driver.get('https://www.reddit.com/top/?t=month')
-        for i in range(30):
+        for i in range(70):
             driver.execute_script("window.scrollTo(0,document.body.scrollHeight);")
-            time.sleep(1)
+            time.sleep(0.1)
             i+=1
         with open('top_month_big.html', 'w', encoding='utf-8') as file:
             file.write(driver.page_source)
@@ -243,5 +244,5 @@ def get_big_main_page():
         driver.close()
         driver.quit()
     return 'top_month_big.html'
-#get_big_main_page()
+get_big_main_page()
 
