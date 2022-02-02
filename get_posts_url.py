@@ -10,7 +10,7 @@ def get_main_page():
     try:
         driver.get('https://www.reddit.com/top/?t=month')
         time.sleep(0.1)
-        with open('top_month.html', 'w', encoding='utf-8') as file:
+        with open('data/top_month.html', 'w', encoding='utf-8') as file:
             file.write(driver.page_source)
     except Exception as ex:
         print(ex)
@@ -21,7 +21,7 @@ get_main_page()
 
 posts_urls= []
 def collect_post_urls():
-    with open('top_month.html', encoding='utf-8') as file:
+    with open('data/top_month.html', encoding='utf-8') as file:
         src = file.read()
     soup = BeautifulSoup(src, 'lxml')
     posts = soup.find_all(class_="SQnoC3ObvgnGjWt90zD9Z _2INHSNB8V5eaWp4P0rY_mE")
@@ -61,7 +61,7 @@ def record_post_pages():
 user_list_for_comm_and_post_karma=[]
 user_list_for_cake_day = []
 def collect_user_urls():
-    with open('top_month.html', encoding='utf-8') as file:
+    with open('data/top_month.html', encoding='utf-8') as file:
         src = file.read()
     soup = BeautifulSoup(src, 'lxml', multi_valued_attributes=None)
     users = soup.find_all('a',class_="_2tbHP6ZydRpjI44J3syuqC  _23wugcdiaj44hdfugIAlnX oQctV4n0yUb0uiHDdGnmE")
@@ -231,13 +231,12 @@ def get_big_main_page():
             driver.execute_script("window.scrollTo(0,document.body.scrollHeight);")
             time.sleep(0.1)
             i+=1
-        with open('top_month_big.html', 'w', encoding='utf-8') as file:
+        with open('data/top_month_big.html', 'w', encoding='utf-8') as file:
             file.write(driver.page_source)
     except Exception as ex:
         print(ex)
     finally:
         driver.close()
         driver.quit()
-    return 'top_month_big.html'
 get_big_main_page()
 

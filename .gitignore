@@ -3,6 +3,7 @@
 *.txt
 chrome_driver/
 data/
+!README.txt
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

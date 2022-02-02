@@ -6,7 +6,7 @@ from datetime import datetime
 
 
 def collect_post():
-    with open('top_month.html', encoding='utf-8') as file:
+    with open('data/top_month.html', encoding='utf-8') as file:
         src = file.read()
     soup = BeautifulSoup(src, 'lxml')
     posts = soup.find_all(class_="SQnoC3ObvgnGjWt90zD9Z _2INHSNB8V5eaWp4P0rY_mE")
