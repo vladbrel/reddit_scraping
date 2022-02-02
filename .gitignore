@@ -1,7 +1,8 @@
 *.html
 *.exe
 *.txt
-
+chrome_driver/
+data/
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
