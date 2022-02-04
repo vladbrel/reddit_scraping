@@ -8,7 +8,7 @@ from datetime import datetime
 
 
 def collect_post():
-    with open('top_month.html', encoding='utf-8') as file:
+    with open('top_month_big.html', encoding='utf-8') as file:
         src = file.read()
     soup = BeautifulSoup(src, 'lxml')
     posts = soup.find_all(class_="SQnoC3ObvgnGjWt90zD9Z _2INHSNB8V5eaWp4P0rY_mE")
@@ -77,16 +77,16 @@ def get_category(x):
     return category.text
 
 def main():
-    get_main_page()
-    #get_big_main_page()
-    collect_post_urls(get_main_page())
+    #get_main_page()
+    get_big_main_page()
+    collect_post_urls()
     record_post_pages()
     collect_user_urls()
     record_user_pages_comm_post_karma()
     record_user_pages_cake_day()
     strings = []
     count = 0
-    while len(strings) < 14:
+    while len(strings) < 35:
         post = []
         post_url = collect_post()
         p_url = str(post_url[count:count+1])
