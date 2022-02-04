@@ -5,8 +5,8 @@ import time
 from bs4 import BeautifulSoup
 
 exe_path = r'D:\Vlad\Python Projects\reddit_scraping\chrome_driver\chromedriver.exe'
-def get_main_page():
-    driver = webdriver.Chrome( executable_path=exe_path)
+def get_main_page(ep):
+    driver = webdriver.Chrome( executable_path=ep)
     try:
         driver.get('https://www.reddit.com/top/?t=month')
         time.sleep(0.1)
@@ -17,11 +17,15 @@ def get_main_page():
     finally:
         driver.close()
         driver.quit()
-get_main_page()
+#get_main_page()
 
 posts_urls= []
-def collect_post_urls():
-    with open('data/top_month.html', encoding='utf-8') as file:
+def collect_post_urls(size):
+    if size == 'big':
+        page = 'data/top_month_big.html'
+    else:
+        page = 'data/top_month.html'
+    with open(page, encoding='utf-8') as file:
         src = file.read()
     soup = BeautifulSoup(src, 'lxml')
     posts = soup.find_all(class_="SQnoC3ObvgnGjWt90zD9Z _2INHSNB8V5eaWp4P0rY_mE")
@@ -36,35 +40,46 @@ def collect_post_urls():
         print(f'{item_text}:{item_url}')
     print(posts_urls)
     return posts_urls
-collect_post_urls()
+#collect_post_urls()
 
 def record_post_pages():
-    driver = webdriver.Chrome( executable_path=exe_path)
     count = 0
-    try:
-       for url in posts_urls:
-           try:
-               driver.get(url)
-               time.sleep(0.5)
-               with open(f'data/{count}.html', 'w',encoding='utf-8') as file:
-                   file.write(driver.page_source)
-               count=count+1
-           except:
-               continue
-    except Exception as ex:
-       print(ex)
-    finally:
-       driver.close()
-       driver.quit()
+    for url in posts_urls:
+        req = requests.get(url)
+        with open(f'data/{count}.html', 'w', encoding='utf-8') as file:
+            file.write(req.text)
+        count+=1
+# def record_post_pages(ep):
+#     driver = webdriver.Chrome( executable_path=ep)
+#     count = 0
+#     try:
+#        for url in posts_urls:
+#            try:
+#                driver.get(url)
+#                time.sleep(0.5)
+#                with open(f'data/{count}.html', 'w',encoding='utf-8') as file:
+#                    file.write(driver.page_source)
+#                count=count+1
+#            except:
+#                continue
+#     except Exception as ex:
+#        print(ex)
+#     finally:
+#        driver.close()
+#        driver.quit()
 #record_post_pages()
 
 user_list_for_comm_and_post_karma=[]
 user_list_for_cake_day = []
-def collect_user_urls():
-    with open('data/top_month.html', encoding='utf-8') as file:
+def collect_user_urls(size):
+    if size == 'big':
+        page = 'data/top_month_big.html'
+    else:
+        page = 'data/top_month.html'
+    with open(page, encoding='utf-8') as file:
         src = file.read()
     soup = BeautifulSoup(src, 'lxml', multi_valued_attributes=None)
-    users = soup.find_all('a',class_="_2tbHP6ZydRpjI44J3syuqC  _23wugcdiaj44hdfugIAlnX oQctV4n0yUb0uiHDdGnmE")
+    users = soup.find_all('a', class_="_2tbHP6ZydRpjI44J3syuqC  _23wugcdiaj44hdfugIAlnX oQctV4n0yUb0uiHDdGnmE")
     for item in users:
         user_url = item.get('href')
         user_list_for_comm_and_post_karma.append('https://www.reddit.com/'+user_url)
@@ -77,43 +92,57 @@ def collect_user_urls():
 #collect_user_urls()
 
 def record_user_pages_comm_post_karma():
-    driver = webdriver.Chrome( executable_path=exe_path)
-    try:
-        count = 0
-        for user in user_list_for_comm_and_post_karma:
-            try:
-                driver.get(user)
-                time.sleep(0.5)
-                with open(f'data/users_post_comment_karma/{count}.html', 'w', encoding='utf-8') as file:
-                    file.write(driver.page_source)
-                count+=1
-            except:
-                continue
-    except Exception as ex:
-        print(ex)
-    finally:
-        driver.close()
-        driver.quit()
+    count = 0
+    for user in user_list_for_comm_and_post_karma:
+        req = requests.get(user)
+        with open(f'data/users_post_comment_karma/{count}.html', 'w', encoding='utf-8') as file:
+            file.write(req.text)
+        count+=1
+# def record_user_pages_comm_post_karma(ep):
+#     driver = webdriver.Chrome( executable_path=ep)
+#     try:
+#         count = 0
+#         for user in user_list_for_comm_and_post_karma:
+#             try:
+#                 driver.get(user)
+#                 time.sleep(0.5)
+#                 with open(f'data/users_post_comment_karma/{count}.html', 'w', encoding='utf-8') as file:
+#                     file.write(driver.page_source)
+#                 count+=1
+#             except:
+#                 continue
+#     except Exception as ex:
+#         print(ex)
+#     finally:
+#         driver.close()
+#         driver.quit()
 #record_user_pages_comm_post_karma()
 
 def record_user_pages_cake_day():
-    driver = webdriver.Chrome( executable_path=exe_path)
-    try:
-        count = 0
-        for user in user_list_for_cake_day:
-            try:
-                driver.get(user)
-                time.sleep(0.5)
-                with open(f'data/users_cake_day/{count}.html', 'w', encoding='utf-8') as file:
-                    file.write(driver.page_source)
-                count +=1
-            except:
-                continue
-    except Exception as ex:
-        print(ex)
-    finally:
-        driver.close()
-        driver.quit()
+    count = 0
+    for user in user_list_for_cake_day:
+        req = requests.get(user)
+        with open(f'data/users_post_comment_karma/{count}.html', 'w', encoding='utf-8') as file:
+            file.write(req.text)
+        count+=1
+# def record_user_pages_cake_day(ep):
+#     driver = webdriver.Chrome( executable_path=ep)
+#     try:
+#         count = 0
+#         for user in user_list_for_cake_day:
+#             try:
+#                 driver.get(user)
+#                 time.sleep(0.5)
+#                 with open(f'data/users_cake_day/{count}.html', 'w', encoding='utf-8') as file:
+#                     file.write(driver.page_source)
+#                 count +=1
+#             except:
+#                 continue
+#     except Exception as ex:
+#         print(ex)
+#     finally:
+#         driver.close()
+#         driver.quit()
 #record_user_pages_cake_day()
 
 def get_user_for_cake_day(x):
@@ -222,9 +251,8 @@ def add_ud(x):
         print(tu)
 #add_ud(5)
 
-def get_big_main_page():
-    driver = webdriver.Chrome(
-        executable_path=exe_path)
+def get_big_main_page(ep):
+    driver = webdriver.Chrome(executable_path=ep)
     try:
         driver.get('https://www.reddit.com/top/?t=month')
         for i in range(60):
@@ -238,5 +266,5 @@ def get_big_main_page():
     finally:
         driver.close()
         driver.quit()
-get_big_main_page()
+#get_big_main_page()
 

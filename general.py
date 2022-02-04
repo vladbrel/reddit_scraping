@@ -1,12 +1,19 @@
 import uuid
 from bs4 import BeautifulSoup
-from chrome_driver.get_posts_url import get_main_page, collect_post_urls, record_post_pages, collect_user_urls, \
+from get_posts_url import get_main_page, collect_post_urls, record_post_pages, collect_user_urls, \
     record_user_pages_comm_post_karma, record_user_pages_cake_day, get_big_main_page
 from datetime import datetime
 
 
-def collect_post():
-    with open('data/top_month.html', encoding='utf-8') as file:
+ex_p = r'D:\Vlad\Python Projects\reddit_scraping\chromedriver.exe'
+amount = 30
+
+def collect_post(size):
+    if size == 'big':
+        page = 'data/top_month_big.html'
+    else:
+        page = 'data/top_month.html'
+    with open(page, encoding='utf-8') as file:
         src = file.read()
     soup = BeautifulSoup(src, 'lxml')
     posts = soup.find_all(class_="SQnoC3ObvgnGjWt90zD9Z _2INHSNB8V5eaWp4P0rY_mE")
@@ -39,55 +46,75 @@ def get_user_for_comment_post_karma(x):
         return None, None
 
 def get_username(x):
-    with open(f'data/{x}.html', encoding='utf-8') as file:
-        src = file.read()
-    soup = BeautifulSoup(src, 'lxml', multi_valued_attributes=None)
-    user = soup.find('a',class_="_2tbHP6ZydRpjI44J3syuqC  _23wugcdiaj44hdfugIAlnX oQctV4n0yUb0uiHDdGnmE")
-    user_url =user.get('href')
-    username = user_url[6:-1]
-    return username
+    try:
+        with open(f'data/{x}.html', encoding='utf-8') as file:
+            src = file.read()
+        soup = BeautifulSoup(src, 'lxml', multi_valued_attributes=None)
+        user = soup.find('a',class_="_2tbHP6ZydRpjI44J3syuqC  _23wugcdiaj44hdfugIAlnX oQctV4n0yUb0uiHDdGnmE")
+        user_url =user.get('href')
+        username = user_url[6:-1]
+        return username
+    except:
+        return None
 
 def get_post_date(x):
-    with open(f'data/{x}.html', encoding='utf-8') as file:
-        src = file.read()
-    soup = BeautifulSoup(src, 'lxml')
-    post_date = soup.find('a', class_='_3jOxDPIQ0KaOWpzvSQo-1s')
-    return post_date.text
+    try:
+        with open(f'data/{x}.html', encoding='utf-8') as file:
+            src = file.read()
+        soup = BeautifulSoup(src, 'lxml')
+        post_date = soup.find('a', class_='_3jOxDPIQ0KaOWpzvSQo-1s')
+        return post_date.text
+    except:
+        return None
 
 def get_num_comments(x):
-    with open(f'data/{x}.html', encoding='utf-8') as file:
-        src = file.read()
-    soup = BeautifulSoup(src, 'lxml')
-    num_comments = soup.find('span', class_="FHCV02u6Cp2zYL0fhQPsO")
-    return num_comments.text
+    try:
+        with open(f'data/{x}.html', encoding='utf-8') as file:
+            src = file.read()
+        soup = BeautifulSoup(src, 'lxml')
+        num_comments = soup.find('span', class_="FHCV02u6Cp2zYL0fhQPsO")
+        return num_comments.text
+    except:
+        return None
 
 def get_num_votes(x):
-    with open(f'data/{x}.html', encoding='utf-8') as file:
-        src = file.read()
-    soup = BeautifulSoup(src, 'lxml')
-    num_votes = soup.find('div', class_="_1E9mcoVn4MYnuBQSVDt1gC")
-    return num_votes.text
+    try:
+        with open(f'data/{x}.html', encoding='utf-8') as file:
+            src = file.read()
+        soup = BeautifulSoup(src, 'lxml')
+        num_votes = soup.find('div', class_="_1E9mcoVn4MYnuBQSVDt1gC")
+        return num_votes.text
+    except:
+        return None
 
 def get_category(x):
-    with open(f'data/{x}.html', encoding='utf-8') as file:
-        src = file.read()
-    soup = BeautifulSoup(src, 'lxml')
-    category = soup.find('div', class_="_3CUdiRoAXQxoYJ-UeFCjPS _2SVIoeexI3lRGCH0NAYAMx")
-    return category.text
+    try:
+        with open(f'data/{x}.html', encoding='utf-8') as file:
+            src = file.read()
+        soup = BeautifulSoup(src, 'lxml')
+        category = soup.find('div', class_="_3CUdiRoAXQxoYJ-UeFCjPS _2SVIoeexI3lRGCH0NAYAMx")
+        return category.text
+    except:
+        return None
 
-def main():
-    get_main_page()
-    #get_big_main_page()
-    collect_post_urls()
+def main(ep, am):
+    if am > 25:
+        get_big_main_page(ep)
+        s = 'big'
+    else:
+        get_main_page(ep)
+        s = 'small'
+    collect_post_urls(s)
     record_post_pages()
-    collect_user_urls()
+    collect_user_urls(s)
     record_user_pages_comm_post_karma()
     record_user_pages_cake_day()
     strings = []
     count = 0
-    while len(strings) < 14:
+    post_url = collect_post(s)
+    while len(strings) < am:
         post = []
-        post_url = collect_post()
+
         p_url = str(post_url[count:count+1])
         post.append(p_url[2:-2])
         username = get_username(count)
@@ -120,4 +147,4 @@ def main():
     with open(f'reddit-{date.year}{date.month}{date.day}{date.hour}{date.minute}.txt', 'w') as file:
         for post in strings:
             file.write(post+'\n')
-main()
+main(ex_p, amount)
