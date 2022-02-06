@@ -1,12 +1,53 @@
+import time
 import uuid
+import requests
 from bs4 import BeautifulSoup
-from get_posts_url import get_main_page, collect_post_urls, record_post_pages, collect_user_urls, \
-    record_user_pages_comm_post_karma, record_user_pages_cake_day, get_big_main_page
 from datetime import datetime
-
+from selenium import webdriver
 
 ex_p = r'D:\Vlad\Python Projects\reddit_scraping\chromedriver.exe'
 amount = 30
+
+def get_main_page(ep):
+    driver = webdriver.Chrome( executable_path=ep)
+    try:
+        driver.get('https://www.reddit.com/top/?t=month')
+        time.sleep(0.1)
+        with open('data/top_month.html', 'w', encoding='utf-8') as file:
+            file.write(driver.page_source)
+    except Exception as ex:
+        print(ex)
+    finally:
+        driver.close()
+        driver.quit()
+
+def collect_post_urls(size):
+    if size == 'big':
+        page = 'data/top_month_big.html'
+    else:
+        page = 'data/top_month.html'
+    with open(page, encoding='utf-8') as file:
+        src = file.read()
+    soup = BeautifulSoup(src, 'lxml')
+    posts = soup.find_all(class_="SQnoC3ObvgnGjWt90zD9Z _2INHSNB8V5eaWp4P0rY_mE")
+    all_posts_dict = {}
+    p_url= []
+    for item in posts:
+        item_text = item.text
+        if '*' in item_text:
+            item_text = item_text.replace('*', '_')
+        item_url = 'http://www.reddit.com' + item.get('href')
+        all_posts_dict[item_text] = item_url
+        p_url.append(item_url)
+    return p_url
+
+def record_post_pages(posts_urls):
+    count = 0
+    for url in posts_urls:
+        req = requests.get(url)
+        with open(f'data/{count}.html', 'w', encoding='utf-8') as file:
+            file.write(req.text)
+        count+=1
 
 def collect_post(size):
     if size == 'big':
@@ -22,6 +63,57 @@ def collect_post(size):
         item_url = 'http://www.reddit.com' + item.get('href')
         posts_urls.append(item_url)
     return posts_urls
+
+def collect_user_urls(size):
+    user_list_for_comm_and_post_karma = []
+    user_list_for_cake_day = []
+    usernames = []
+    if size == 'big':
+        page = 'data/top_month_big.html'
+    else:
+        page = 'data/top_month.html'
+    with open(page, encoding='utf-8') as file:
+        src = file.read()
+    soup = BeautifulSoup(src, 'lxml', multi_valued_attributes=None)
+    users = soup.find_all('a', class_="_2tbHP6ZydRpjI44J3syuqC  _23wugcdiaj44hdfugIAlnX oQctV4n0yUb0uiHDdGnmE")
+    for item in users:
+        user_url = item.get('href')
+        user_list_for_comm_and_post_karma.append('https://www.reddit.com/'+user_url)
+        user_list_for_cake_day.append('https://www.reddit.com'+user_url)
+        username = user_url[6:-1]
+        usernames.append(username)
+    return user_list_for_comm_and_post_karma, user_list_for_cake_day, usernames
+def record_user_pages_comm_post_karma():
+    count = 0
+    for user in user_list_for_comm_and_post_karma:
+        req = requests.get(user)
+        with open(f'data/users_post_comment_karma/{count}.html', 'w', encoding='utf-8') as file:
+            file.write(req.text)
+        count+=1
+
+def record_user_pages_cake_day():
+    count = 0
+    for user in user_list_for_cake_day:
+        req = requests.get(user)
+        with open(f'data/users_post_comment_karma/{count}.html', 'w', encoding='utf-8') as file:
+            file.write(req.text)
+        count+=1
+
+def get_big_main_page(ep):
+    driver = webdriver.Chrome(executable_path=ep)
+    try:
+        driver.get('https://www.reddit.com/top/?t=month')
+        for i in range(60):
+            driver.execute_script("window.scrollTo(0,document.body.scrollHeight);")
+            time.sleep(0.1)
+            i+=1
+        with open('data/top_month_big.html', 'w', encoding='utf-8') as file:
+            file.write(driver.page_source)
+    except Exception as ex:
+        print(ex)
+    finally:
+        driver.close()
+        driver.quit()
 
 def get_user_for_cake_day(x):
     try:
@@ -104,20 +196,21 @@ def main(ep, am):
     else:
         get_main_page(ep)
         s = 'small'
-    collect_post_urls(s)
-    record_post_pages()
-    collect_user_urls(s)
-    record_user_pages_comm_post_karma()
-    record_user_pages_cake_day()
+    print('main page was got')
+    post_url = collect_post_urls(s)
+    record_post_pages(post_url)
+    users = collect_user_urls(s)
+    record_user_pages_comm_post_karma(users[1])
+    record_user_pages_cake_day(users[2])
     strings = []
     count = 0
     post_url = collect_post(s)
     while len(strings) < am:
         post = []
-
         p_url = str(post_url[count:count+1])
         post.append(p_url[2:-2])
-        username = get_username(count)
+        username = users[2][count]
+        #username = get_username(count)
         post.append(username)
         user_karma, cake_day = get_user_for_cake_day(count)
         post.append(user_karma)
@@ -143,6 +236,7 @@ def main(ep, am):
         strings.append(post_string)
         count += 1
         post.clear()
+        print(f'iterationn{count}')
     date = datetime.now()
     with open(f'reddit-{date.year}{date.month}{date.day}{date.hour}{date.minute}.txt', 'w') as file:
         for post in strings:
