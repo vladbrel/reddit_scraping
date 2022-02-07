@@ -216,6 +216,7 @@ def main(ep, am):
             p_url = str(post_url[count:count+1])
             post.append(p_url[2:-2])
             username = users[2][count]
+            print('premiddle', end='')
             #username = get_username(count)
             post.append(username)
             print('middle of try', end='')
@@ -246,7 +247,11 @@ def main(ep, am):
             print('finish', end='')
         except:
             count+=1
-            print(f'except{count}')
+            print(f'except{count}', end='')
+            if am > 70 and count > am * 1.5:
+                break
+            if am > count * 2:
+                break
             continue
         print('before file')
         post.clear()
