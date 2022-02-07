@@ -82,8 +82,10 @@ def collect_user_urls(size):
         user_list_for_cake_day.append('https://www.reddit.com'+user_url)
         username = user_url[6:-1]
         usernames.append(username)
+    print(usernames)
     return user_list_for_comm_and_post_karma, user_list_for_cake_day, usernames
-def record_user_pages_comm_post_karma():
+
+def record_user_pages_comm_post_karma(user_list_for_comm_and_post_karma):
     count = 0
     for user in user_list_for_comm_and_post_karma:
         req = requests.get(user)
@@ -91,7 +93,7 @@ def record_user_pages_comm_post_karma():
             file.write(req.text)
         count+=1
 
-def record_user_pages_cake_day():
+def record_user_pages_cake_day(user_list_for_cake_day):
     count = 0
     for user in user_list_for_cake_day:
         req = requests.get(user)
@@ -200,43 +202,60 @@ def main(ep, am):
     post_url = collect_post_urls(s)
     record_post_pages(post_url)
     users = collect_user_urls(s)
-    record_user_pages_comm_post_karma(users[1])
-    record_user_pages_cake_day(users[2])
+    record_user_pages_comm_post_karma(users[0])
+    record_user_pages_cake_day(users[1])
     strings = []
     count = 0
     post_url = collect_post(s)
+    print('the end of collecting information')
     while len(strings) < am:
-        post = []
-        p_url = str(post_url[count:count+1])
-        post.append(p_url[2:-2])
-        username = users[2][count]
-        #username = get_username(count)
-        post.append(username)
-        user_karma, cake_day = get_user_for_cake_day(count)
-        post.append(user_karma)
-        post.append(cake_day)
-        post_karma, comment_karma = get_user_for_comment_post_karma(count)
-        post.append(post_karma)
-        post.append(comment_karma)
-        post_date = get_post_date(count)
-        post.append(post_date)
-        num_of_comments = get_num_comments(count)
-        post.append(num_of_comments)
-        num_of_votes = get_num_votes(count)
-        post.append(num_of_votes)
-        post_category = get_category(count)
-        post.append(post_category)
-        if None in post:
-            post.clear()
+        print('start while')
+        try:
+            print('start try', end='')
+            post = []
+            p_url = str(post_url[count:count+1])
+            post.append(p_url[2:-2])
+            username = users[2][count]
+            #username = get_username(count)
+            post.append(username)
+            print('middle of try', end='')
+            user_karma, cake_day = get_user_for_cake_day(count)
+            post.append(user_karma)
+            post.append(cake_day)
+            post_karma, comment_karma = get_user_for_comment_post_karma(count)
+            post.append(post_karma)
+            post.append(comment_karma)
+            post_date = get_post_date(count)
+            post.append(post_date)
+            num_of_comments = get_num_comments(count)
+            post.append(num_of_comments)
+            num_of_votes = get_num_votes(count)
+            post.append(num_of_votes)
+            post_category = get_category(count)
+            post.append(post_category)
+            print('post middle', end='')
+            if None in post:
+                post.clear()
+                count += 1
+                continue
+            post_string = uuid.uuid1().hex+';'
+            for item in post:
+                post_string +=item+';'
+            strings.append(post_string)
             count += 1
+            print('finish', end='')
+        except:
+            count+=1
+            print(f'except{count}')
             continue
-        post_string = uuid.uuid1().hex+';'
-        for item in post:
-            post_string +=item+';'
-        strings.append(post_string)
-        count += 1
+        print('before file')
         post.clear()
         print(f'iterationn{count}')
+        print(strings)
+        if am>70 and count>am*1.5:
+            break
+        if am>count*2:
+            break
     date = datetime.now()
     with open(f'reddit-{date.year}{date.month}{date.day}{date.hour}{date.minute}.txt', 'w') as file:
         for post in strings:
