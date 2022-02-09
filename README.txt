@@ -10,3 +10,12 @@ https://chromedriver.storage.googleapis.com/index.html
 pip install selenium beautifulsoup4 lxml requests
 После чего написать в терминал:
 python general.py
+
+В идеале программа должна запарсить сайт реддит, после чего записать в файл reddit-YYYYMMDDHHMM.txt 100(сто) строк с информацией о постах в формате:
+UNIQUE_ID;post URL;username;user karma;user cake day;post karma;
+comment karma;post date;number of comments;number of votes;post category
+Если по какому-то из постов нет нужного элемента- пост игнорируется.
+
+P.S. Мои навыки организатора, планировщика, архитектора программы подвели, т.к. это мой первый опыт создания какой-либо программы самостоятельно, без примеров.
+В том числе работа с git была неправильной, из-за чего количество версий программы выросло и я запутался в этом хаосе. 
+Про ветки, с которыми следует работать- я знаю, просто запушил самую лучшую версию не в develop или master, т.к. версия не сильно рабочая:)
